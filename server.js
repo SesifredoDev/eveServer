@@ -1,19 +1,16 @@
-const app = require('express')();
-const httpServer = require('http').createServer(app);
-const io = require('socket.io')(httpServer, {
-  cors: {origin : '*'}
-});
+const mqtt = require('mqtt')
+const client  = mqtt.connect('mqtt://18.130.50.205:1883',{username: 'paolo',password: 'w4f-ZmPVNJMXbXJ-RB8!'})
 
-const port = 3000;
-currentDevices = []
-
-io.on('connection', (socket) => {
-    console.log("connection "+ socket.id)
-    io.on("ping",  data =>{
-      console.log("ping")
-      data.push({"clientID":socket.id})
-      currentDevices.push(data)
-      io.emit("devices", currentDevices)
-    })
+client.on('connect', function () {
+  client.subscribe('presence', function (err) {
+    if (!err) {
+      client.publish('presence', 'Hello mqtt')
+    }
+  })
 })
-httpServer.listen(port, () => console.log(`listening on port ${port}`));
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString())
+  client.end()
+})
