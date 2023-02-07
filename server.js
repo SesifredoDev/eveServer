@@ -5,9 +5,15 @@ const io = require('socket.io')(httpServer, {
 });
 
 const port = 3000;
+currentDevices = []
 
 io.on('connection', (socket) => {
     console.log("connection "+ socket.id)
-    io.emit("devices", "phone")
+    io.on("ping",  data =>{
+      console.log("ping")
+      data.push({"clientID":socket.id})
+      currentDevices.push(data)
+      io.emit("devices", currentDevices)
+    })
 })
 httpServer.listen(port, () => console.log(`listening on port ${port}`));
